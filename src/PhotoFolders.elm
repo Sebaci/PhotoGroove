@@ -1,9 +1,8 @@
-module PhotoFolders exposing (main)
+module PhotoFolders exposing (Model, Msg, init, update, view)
 
-import Browser
 import Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes exposing (class, src)
+import Html.Attributes exposing (class, href, src)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode exposing (Decoder, int, list, string)
@@ -34,12 +33,12 @@ initialModel =
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( initialModel
+init : Maybe String -> ( Model, Cmd Msg )
+init selectedFileName =
+    ( { initialModel | selectedPhotoUrl = selectedFileName }
     , Http.get
         { url = "http://elm-in-action.com/folders/list"
-        , expect = Http.expectJson LoadPage modelDecoder
+        , expect = Http.expectJson GotInitialModel modelDecoder
         }
     )
 
@@ -58,6 +57,7 @@ type Msg
     = SelectPhotoUrl String
     | LoadPage (Result Http.Error Model)
     | ToggleExpanded FolderPath
+    | GotInitialModel (Result Http.Error Model)
 
 
 view : Model -> Html Msg
@@ -71,30 +71,22 @@ view model =
         selectedPhoto =
             case Maybe.andThen photoByUrl model.selectedPhotoUrl of
                 Just photo ->
-                    viewSelectedPhoto photo
+                    Debug.log ("photo " ++ photo.url) viewSelectedPhoto photo
 
                 Nothing ->
-                    text ""
+                    Debug.log "nothing!!" (text "")
     in
     div [ class "content" ]
-        [ div [ class "folders" ]
-            [ h1 [] [ text "Folders" ]
-            , viewFolder End model.root
-            ]
+        [ div [ class "folders" ] [ viewFolder End model.root ]
         , div [ class "selected-photo" ] [ selectedPhoto ]
         ]
-
-
-main : Program () Model Msg
-main =
-    Browser.element { init = init, view = view, update = update, subscriptions = \_ -> Sub.none }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SelectPhotoUrl url ->
-            ( { model | selectedPhotoUrl = Just url }, Cmd.none )
+            Debug.log ("selected" ++ url) ( { model | selectedPhotoUrl = Just url }, Cmd.none )
 
         LoadPage (Ok newModel) ->
             ( newModel, Cmd.none )
@@ -104,6 +96,14 @@ update msg model =
 
         ToggleExpanded path ->
             ( { model | root = toggleExpanded path model.root }, Cmd.none )
+
+        GotInitialModel (Ok newModel) ->
+            ( { newModel | selectedPhotoUrl = model.selectedPhotoUrl }
+            , Cmd.none
+            )
+
+        GotInitialModel (Err _) ->
+            ( model, Cmd.none )
 
 
 type alias Photo =
@@ -139,7 +139,7 @@ viewRelatedPhoto url =
 
 viewPhoto : String -> Html Msg
 viewPhoto url =
-    div [ class "photo", onClick (SelectPhotoUrl url) ]
+    a [ href ("/photos/" ++ url), class "photo", onClick (SelectPhotoUrl url) ]
         [ text url ]
 
 
