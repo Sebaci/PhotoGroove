@@ -6898,7 +6898,6 @@ var $elm$url$Url$toString = function (url) {
 					_Utils_ap(http, url.host)),
 				url.path)));
 };
-var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Basics$not = _Basics_not;
 var $author$project$PhotoFolders$toggleExpanded = F2(
 	function (path, _v0) {
@@ -6927,16 +6926,13 @@ var $author$project$PhotoFolders$update = F2(
 		switch (msg.$) {
 			case 'SelectPhotoUrl':
 				var url = msg.a;
-				return A2(
-					$elm$core$Debug$log,
-					'selected' + url,
-					_Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								selectedPhotoUrl: $elm$core$Maybe$Just(url)
-							}),
-						$elm$core$Platform$Cmd$none));
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							selectedPhotoUrl: $elm$core$Maybe$Just(url)
+						}),
+					$elm$core$Platform$Cmd$none);
 			case 'LoadPage':
 				if (msg.a.$ === 'Ok') {
 					var newModel = msg.a.a;
@@ -7629,12 +7625,9 @@ var $author$project$PhotoFolders$view = function (model) {
 		var _v0 = A2($elm$core$Maybe$andThen, photoByUrl, model.selectedPhotoUrl);
 		if (_v0.$ === 'Just') {
 			var photo = _v0.a;
-			return A3($elm$core$Debug$log, 'photo ' + photo.url, $author$project$PhotoFolders$viewSelectedPhoto, photo);
+			return $author$project$PhotoFolders$viewSelectedPhoto(photo);
 		} else {
-			return A2(
-				$elm$core$Debug$log,
-				'nothing!!',
-				$elm$html$Html$text(''));
+			return $elm$html$Html$text('');
 		}
 	}();
 	return A2(

@@ -71,10 +71,10 @@ view model =
         selectedPhoto =
             case Maybe.andThen photoByUrl model.selectedPhotoUrl of
                 Just photo ->
-                    Debug.log ("photo " ++ photo.url) viewSelectedPhoto photo
+                    viewSelectedPhoto photo
 
                 Nothing ->
-                    Debug.log "nothing!!" (text "")
+                    text ""
     in
     div [ class "content" ]
         [ div [ class "folders" ] [ viewFolder End model.root ]
@@ -86,7 +86,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SelectPhotoUrl url ->
-            Debug.log ("selected" ++ url) ( { model | selectedPhotoUrl = Just url }, Cmd.none )
+            ( { model | selectedPhotoUrl = Just url }, Cmd.none )
 
         LoadPage (Ok newModel) ->
             ( newModel, Cmd.none )
